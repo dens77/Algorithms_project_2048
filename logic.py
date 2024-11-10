@@ -19,26 +19,23 @@ def add_new_2(mat):
     # 90% chance to get a 2, 10% chance to get a 4
     mat[r][c] = 2 if random.random() < 0.9 else 4
 
-def get_current_state(mat):
-    for i in range(4):
-        for j in range(4):
-            if mat[i][j] == 2048:
+def search_for_2048(mat, target=2048):
+    rows, cols = len(mat), len(mat[0])
+    visited = [[False] * cols for _ in range(rows)]
+
+    def dfs(i, j):
+        if i < 0 or j < 0 or i >= rows or j >= cols or visited[i][j]:
+            return False
+        visited[i][j] = True
+        if mat[i][j] == target:
+            return True
+        return dfs(i + 1, j) or dfs(i - 1, j) or dfs(i, j + 1) or dfs(i, j - 1)
+
+    for i in range(rows):
+        for j in range(cols):
+            if dfs(i, j):
                 return 'WON'
-    for i in range(4):
-        for j in range(4):
-            if mat[i][j] == 0:
-                return 'GAME NOT OVER'
-    for i in range(3):
-        for j in range(3):
-            if mat[i][j] == mat[i + 1][j] or mat[i][j] == mat[i][j + 1]:
-                return 'GAME NOT OVER'
-    for j in range(3):
-        if mat[3][j] == mat[3][j + 1]:
-            return 'GAME NOT OVER'
-    for i in range(3):
-        if mat[i][3] == mat[i + 1][3]:
-            return 'GAME NOT OVER'
-    return 'LOST'
+    return 'GAME NOT OVER' if any(0 in row for row in mat) else 'LOST'
 
 def compress(mat):
     changed = False
