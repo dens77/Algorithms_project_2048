@@ -39,7 +39,8 @@ def key_press(key):
     if changed:
         logic.add_new_2(mat)
         draw_board()
-        status = logic.get_current_state(mat)
+        # Use search_for_2048 instead of get_current_state
+        status = logic.search_for_2048(mat)
         if status == 'WON':
             board.message_box("2048", "Congratulations! You won!")
             board.close()
@@ -48,7 +49,7 @@ def key_press(key):
             board.close()
     else:
         # Check if there are no moves left
-        status = logic.get_current_state(mat)
+        status = logic.search_for_2048(mat)
         if status == 'LOST':
             board.message_box("2048", "Game Over!")
             board.close()
