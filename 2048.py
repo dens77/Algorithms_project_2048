@@ -2,6 +2,7 @@
 
 import logic
 from game2dboard import Board
+import time
 
 # Initialize the game board
 board = Board(4, 4)
@@ -42,17 +43,22 @@ def key_press(key):
         # Use search_for_2048 instead of get_current_state
         status = logic.search_for_2048(mat)
         if status == 'WON':
-            board.message_box("2048", "Congratulations! You won!")
+            print("Congratulations! You won!")
+            time.sleep(3)  # Wait for 3 seconds
             board.close()
         elif status == 'LOST':
-            board.message_box("2048", "Game Over!")
+            print('LOST')
+            print("Game Over!")
+            time.sleep(3)  # Wait for 3 seconds
             board.close()
     else:
         # Check if there are no moves left
         status = logic.search_for_2048(mat)
         if status == 'LOST':
-            board.message_box("2048", "Game Over!")
+            print("Game Over!")
+            time.sleep(3)  # Wait for 3 seconds
             board.close()
+
 
 # Initial draw
 draw_board()
