@@ -1,8 +1,5 @@
-# 2048.py
-
 import logic
 from game2dboard import Board
-import time
 
 # Initialize the game board
 board = Board(4, 4)
@@ -11,8 +8,10 @@ board.title = "2048 Game"
 board.margin = 10
 board.cell_spacing = 5  # Adjusted for better visual spacing
 
-# Initialize the game matrix
+# Initialize the game matrix and game_over flag
 mat = logic.start_game()
+game_over = False  # Add this line
+
 
 def draw_board():
     for i in range(4):
@@ -23,9 +22,23 @@ def draw_board():
             else:
                 board[i][j] = f'{value}.png'
 
+
 def key_press(key):
-    global mat
+    global mat, game_over
     key = key.lower()
+
+    if game_over:
+        if key == 'r':
+            mat = logic.start_game()
+            game_over = False
+            draw_board()
+            print("Game restarted! Continue playing.")
+        elif key == 'e':
+            board.close()
+        else:
+            print("Press 'r' to restart or 'e' to exit.")
+        return
+
     if key == 'w':
         mat, changed = logic.move_up(mat)
     elif key == 's':
@@ -44,23 +57,22 @@ def key_press(key):
         status = logic.search_for_2048(mat)
         if status == 'WON':
             print("Congratulations! You won!")
-            time.sleep(3)  # Wait for 3 seconds
-            board.close()
+            print("Press 'r' to restart or 'e' to exit.")
+            game_over = True  # Set game_over to True
         elif status == 'LOST':
-            print('LOST')
             print("Game Over!")
-            time.sleep(3)  # Wait for 3 seconds
-            board.close()
+            print("Press 'r' to restart or 'e' to exit.")
+            game_over = True  # Set game_over to True
     else:
         # Check if there are no moves left
         status = logic.search_for_2048(mat)
         if status == 'LOST':
             print("Game Over!")
-            time.sleep(3)  # Wait for 3 seconds
-            board.close()
+            print("Press 'r' to restart or 'e' to exit.")
+            game_over = True
 
 
 # Initial draw
 draw_board()
-board.on_key_press = key_press  # Assign the key press handler
+board.on_key_press = key_press
 board.show()
