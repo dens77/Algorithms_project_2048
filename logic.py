@@ -1,13 +1,12 @@
-# logic.py
-
 import random
+import heapq
 
 def start_game():
     mat = []
     for i in range(4):
         mat.append([0] * 4)
     add_new_2(mat)
-    add_new_2(mat)  # Starting with two tiles
+    add_new_2(mat)  
     return mat
 
 def add_new_2(mat):
@@ -16,7 +15,6 @@ def add_new_2(mat):
     while mat[r][c] != 0:
         r = random.randint(0, 3)
         c = random.randint(0, 3)
-    # 90% chance to get a 2, 10% chance to get a 4
     mat[r][c] = 2 if random.random() < 0.9 else 4
 
 def search_for_2048(mat, target=2048):
@@ -37,29 +35,46 @@ def search_for_2048(mat, target=2048):
                 return 'WON'
     return 'GAME NOT OVER' if any(0 in row for row in mat) else 'LOST'
 
-def compress(mat):
+def compress_with_priority(mat):
     changed = False
     new_mat = []
     for i in range(4):
         new_mat.append([0] * 4)
     for i in range(4):
-        pos = 0
+        pq = []
         for j in range(4):
             if mat[i][j] != 0:
-                new_mat[i][pos] = mat[i][j]
-                if j != pos:
-                    changed = True
-                pos += 1
+                heapq.heappush(pq, (j, mat[i][j])) 
+
+        pos = 0
+        while pq:
+            _, value = heapq.heappop(pq)
+            new_mat[i][pos] = value
+            if pos != _:
+                changed = True
+            pos += 1
     return new_mat, changed
 
-def merge(mat):
+def merge_with_priority(mat):
     changed = False
     for i in range(4):
-        for j in range(3):
-            if mat[i][j] == mat[i][j + 1] and mat[i][j] != 0:
-                mat[i][j] *= 2
-                mat[i][j + 1] = 0
+        pq = []
+        for j in range(4):
+            if mat[i][j] != 0:
+                heapq.heappush(pq, (j, mat[i][j]))
+
+        new_row = [0] * 4
+        pos = 0
+        while pq:
+            _, value = heapq.heappop(pq)
+            if pos < 3 and new_row[pos] == value: 
+                new_row[pos] *= 2
                 changed = True
+            else:
+                if new_row[pos] != 0:  
+                    pos += 1
+                new_row[pos] = value
+        mat[i] = new_row
     return mat, changed
 
 def reverse(mat):
@@ -79,10 +94,10 @@ def transpose(mat):
     return new_mat
 
 def move_left(grid):
-    new_grid, changed1 = compress(grid)
-    new_grid, changed2 = merge(new_grid)
+    new_grid, changed1 = compress_with_priority(grid)
+    new_grid, changed2 = merge_with_priority(new_grid)
     changed = changed1 or changed2
-    new_grid, _ = compress(new_grid)
+    new_grid, _ = compress_with_priority(new_grid)
     return new_grid, changed
 
 def move_right(grid):
