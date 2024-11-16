@@ -48,15 +48,16 @@ def compress_with_priority(mat):
 
         pos = 0
         while pq:
-            _, value = heapq.heappop(pq)
+            idx, value = heapq.heappop(pq)
             new_mat[i][pos] = value
-            if pos != _:
+            if pos != idx:
                 changed = True
             pos += 1
     return new_mat, changed
 
 def merge_with_priority(mat):
     changed = False
+    score = 0  
     for i in range(4):
         pq = []
         for j in range(4):
@@ -66,16 +67,17 @@ def merge_with_priority(mat):
         new_row = [0] * 4
         pos = 0
         while pq:
-            _, value = heapq.heappop(pq)
+            idx, value = heapq.heappop(pq)
             if pos < 3 and new_row[pos] == value: 
                 new_row[pos] *= 2
+                score += new_row[pos] 
                 changed = True
             else:
                 if new_row[pos] != 0:  
                     pos += 1
                 new_row[pos] = value
         mat[i] = new_row
-    return mat, changed
+    return mat, changed, score
 
 def reverse(mat):
     new_mat = []
@@ -95,25 +97,34 @@ def transpose(mat):
 
 def move_left(grid):
     new_grid, changed1 = compress_with_priority(grid)
-    new_grid, changed2 = merge_with_priority(new_grid)
+    new_grid, changed2, score = merge_with_priority(new_grid)
     changed = changed1 or changed2
     new_grid, _ = compress_with_priority(new_grid)
-    return new_grid, changed
+    return new_grid, changed, score
 
 def move_right(grid):
     reversed_grid = reverse(grid)
-    new_grid, changed = move_left(reversed_grid)
+    new_grid, changed, score = move_left(reversed_grid)
     new_grid = reverse(new_grid)
-    return new_grid, changed
+    return new_grid, changed, score
 
 def move_up(grid):
     transposed_grid = transpose(grid)
-    new_grid, changed = move_left(transposed_grid)
+    new_grid, changed, score = move_left(transposed_grid)
     new_grid = transpose(new_grid)
-    return new_grid, changed
+    return new_grid, changed, score
 
 def move_down(grid):
     transposed_grid = transpose(grid)
-    new_grid, changed = move_right(transposed_grid)
+    new_grid, changed, score = move_right(transposed_grid)
     new_grid = transpose(new_grid)
-    return new_grid, changed
+    return new_grid, changed, score
+
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key_item = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] < key_item:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key_item
