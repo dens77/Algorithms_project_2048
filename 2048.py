@@ -10,20 +10,22 @@ board.cell_spacing = 5  # Adjusted for better visual spacing
 
 # Initialize the game matrix and game_over flag
 mat = logic.start_game()
-game_over = False  # Add this line
+game_over = False
 
 
 def draw_board():
+    """Draw the current game board on the UI."""
     for i in range(4):
         for j in range(4):
             value = mat[i][j]
             if value == 0:
-                board[i][j] = 'empty.png'
+                board[i][j] = 'empty.png'  # Path to the empty tile image
             else:
-                board[i][j] = f'{value}.png'
+                board[i][j] = f'{value}.png'  # Path to numbered tile images
 
 
 def key_press(key):
+    """Handle key presses for game actions."""
     global mat, game_over
     key = key.lower()
 
@@ -53,16 +55,15 @@ def key_press(key):
     if changed:
         logic.add_new_2(mat)
         draw_board()
-        # Use search_for_2048 instead of get_current_state
-        status = logic.search_for_2048(mat)
+        status = logic.search_for_2048(mat)  # Use the search_for_2048 function
         if status == 'WON':
             print("Congratulations! You won!")
             print("Press 'r' to restart or 'e' to exit.")
-            game_over = True  # Set game_over to True
+            game_over = True
         elif status == 'LOST':
             print("Game Over!")
             print("Press 'r' to restart or 'e' to exit.")
-            game_over = True  # Set game_over to True
+            game_over = True
     else:
         # Check if there are no moves left
         status = logic.search_for_2048(mat)
