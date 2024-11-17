@@ -17,23 +17,47 @@ def add_new_2(mat):
         c = random.randint(0, 3)
     mat[r][c] = 2 if random.random() < 0.9 else 4
 
-def search_for_2048(mat, target=2048):
+from collections import deque
+
+def bfs(mat):
     rows, cols = len(mat), len(mat[0])
     visited = [[False] * cols for _ in range(rows)]
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  
 
-    def dfs(i, j):
-        if i < 0 or j < 0 or i >= rows or j >= cols or visited[i][j]:
-            return False
-        visited[i][j] = True
-        if mat[i][j] == target:
-            return True
-        return dfs(i + 1, j) or dfs(i - 1, j) or dfs(i, j + 1) or dfs(i, j - 1)
+    queue = deque()
 
     for i in range(rows):
         for j in range(cols):
-            if dfs(i, j):
+            queue.append((i, j))
+
+    while queue:
+        i, j = queue.popleft()
+
+        if visited[i][j]:
+            continue
+
+        visited[i][j] = True
+
+        if mat[i][j] == 0:
+            return 'GAME NOT OVER'
+
+        for dx, dy in directions:
+            x, y = i + dx, j + dy
+            if 0 <= x < rows and 0 <= y < cols:
+                if mat[i][j] == mat[x][y]:  
+                    return 'GAME NOT OVER'
+
+    return 'LOST'
+
+def search_for_2048_bfs(mat, target=2048):
+    rows, cols = len(mat), len(mat[0])
+
+    for i in range(rows):
+        for j in range(cols):
+            if mat[i][j] == target:
                 return 'WON'
-    return 'GAME NOT OVER' if any(0 in row for row in mat) else 'LOST'
+
+    return bfs(mat)
 
 def compress_with_priority(mat):
     changed = False
