@@ -1,34 +1,31 @@
-import logic
+import game_logic
 from game2dboard import Board
 
-# Initialize the game board
 board = Board(4, 4)
 board.cell_size = 100
 board.title = "2048 Game"
 board.margin = 10
-board.cell_spacing = 5  # Adjusted for better visual spacing
+board.cell_spacing = 5
 
-# Initialize the game matrix, game_over flag, score, and scores list
-mat = logic.start_game()
+mat = game_logic.start_game()
+graph = game_logic.board_to_graph(mat)
 game_over = False
 score = 0
 scores = []
 
 
 def draw_board():
-    """Draw the current game board on the UI."""
     for i in range(4):
         for j in range(4):
             value = mat[i][j]
             if value == 0:
-                board[i][j] = 'empty.png'  # Path to the empty tile image
+                board[i][j] = 'empty.png'
             else:
-                board[i][j] = f'{value}.png'  # Path to numbered tile images
-    board.title = f"2048 Game - Score: {score}"  # Update board title with the score
+                board[i][j] = f'{value}.png'
+    board.title = f"2048 Game - Score: {score}"
 
 
 def display_scoreboard(scores):
-    """Display the top scores."""
     print("\nScoreboard:")
     for idx, sc in enumerate(scores):
         print(f"{idx + 1}. {sc}")
@@ -36,15 +33,15 @@ def display_scoreboard(scores):
 
 
 def key_press(key):
-    """Handle key presses for game actions."""
-    global mat, game_over, score, scores
+    global mat, graph, game_over, score, scores
     key = key.lower()
 
     if game_over:
         if key == 'r':
-            mat = logic.start_game()
+            mat = game_logic.start_game()
+            graph = game_logic.board_to_graph(mat)
             game_over = False
-            score = 0  # Reset score on restart
+            score = 0
             draw_board()
             print("Game restarted! Continue playing.")
         elif key == 'e':
@@ -54,47 +51,47 @@ def key_press(key):
         return
 
     if key == 'w':
-        mat, changed, move_score = logic.move_up(mat)
+        mat, changed, move_score = game_logic.move_up(mat)
     elif key == 's':
-        mat, changed, move_score = logic.move_down(mat)
+        mat, changed, move_score = game_logic.move_down(mat)
     elif key == 'a':
-        mat, changed, move_score = logic.move_left(mat)
+        mat, changed, move_score = game_logic.move_left(mat)
     elif key == 'd':
-        mat, changed, move_score = logic.move_right(mat)
+        mat, changed, move_score = game_logic.move_right(mat)
     else:
-        return  # Ignore other keys
+        return
 
     if changed:
-        score += move_score  # Update the score with points from the move
-        logic.add_new_2(mat)
+        score += move_score
+        game_logic.add_new_2(mat)
+        graph = game_logic.board_to_graph(mat)
         draw_board()
-        status = logic.search_for_2048_bfs(mat)  
-        if status == 'WON':
+
+        if game_logic.bfs_search_value(mat, graph, target=2048) == "WON":
             print("Congratulations! You won!")
             scores.append(score)
-            logic.insertion_sort(scores) 
+            game_logic.insertion_sort(scores)
             display_scoreboard(scores)
             print("Press 'r' to restart or 'e' to exit.")
             game_over = True
-        elif status == 'LOST':
+        elif game_logic.has_valid_moves(mat, graph) == "LOST":
             print("Game Over!")
             scores.append(score)
-            logic.insertion_sort(scores)
+            game_logic.insertion_sort(scores)
             display_scoreboard(scores)
             print("Press 'r' to restart or 'e' to exit.")
             game_over = True
     else:
-        status = logic.search_for_2048_bfs(mat)
-        if status == 'LOST':
+        if game_logic.has_valid_moves(mat, graph) == "LOST":
             print("Game Over!")
             scores.append(score)
-            logic.insertion_sort(scores)
+            game_logic.insertion_sort(scores)
             display_scoreboard(scores)
             print("Press 'r' to restart or 'e' to exit.")
             game_over = True
 
 
-# Initial draw
 draw_board()
+
 board.on_key_press = key_press
 board.show()
