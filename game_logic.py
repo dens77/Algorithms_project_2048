@@ -35,22 +35,28 @@ def has_valid_moves(mat, graph):
                 return "GAME NOT OVER"
     return "LOST"
 
-def bfs_search_value(mat, graph, target=2048):
+def bfs_search_value(mat, target=2048):
+    rows, cols = len(mat), len(mat[0])
+    queue = deque([(0, 0)]) 
     visited = set()
-    queue = deque([(i, j) for i in range(4) for j in range(4)])
+
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
     while queue:
         i, j = queue.popleft()
+
         if (i, j) in visited:
-            continue
-        visited.add((i, j))
+            continue  
+
+        visited.add((i, j))  
 
         if mat[i][j] == target:
             return "WON"
 
-        for x, y in graph[(i, j)]:
-            if (x, y) not in visited:
-                queue.append((x, y))
+        for di, dj in directions:
+            x, y = i + di, j + dj
+            if 0 <= x < rows and 0 <= y < cols and (x, y) not in visited:
+                queue.append((x, y)) 
 
     return "CONTINUE"
 
